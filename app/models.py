@@ -58,6 +58,7 @@ class Ticket(Base):
     ticket_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     ticket_status = Column(String, nullable=False, default="available")
     ticket_type_id = Column(UUID(as_uuid=True), ForeignKey("ticket_types.id"), nullable=False)
+    event_id = Column(UUID(as_uuid=True), ForeignKey("events.id"), nullable=False)
     
     ticket_type = relationship("TicketType", back_populates="tickets")
     event = relationship("Event", back_populates="tickets")
