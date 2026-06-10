@@ -1,4 +1,4 @@
-from app.models import Event, TicketType
+from app.models import Event, TicketType, Organiser
 
 def create_event(db, organiser_id, name, venue, ticket_types):
     event = Event(
@@ -18,3 +18,13 @@ def create_event(db, organiser_id, name, venue, ticket_types):
     db.commit()
     db.refresh(event)
     return event
+
+def create_organisation(db, name, email):
+    organiser = Organiser(
+        name=name,
+        email=email
+    )
+    db.add(organiser)
+    db.commit()
+    db.refresh(organiser)
+    return organiser
