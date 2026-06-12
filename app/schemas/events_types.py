@@ -12,6 +12,7 @@ class TicketTypeResponse(BaseModel):
     price: float
     quantity_total: int
     quantity_sold: int
+    max_per_order: int
    
     model_config = {"from_attributes": True}
 
