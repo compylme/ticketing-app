@@ -46,6 +46,7 @@ class TicketType(Base):
     price = Column(Numeric(10,2), nullable=False)
     quantity_total = Column(Integer, nullable=False)
     quantity_sold = Column(Integer, nullable=False, default=0)
+    max_per_order = Column(Integer, nullable=False)
 
     event = relationship("Event", back_populates="ticket_types")
     tickets = relationship("Ticket", back_populates="ticket_type")
