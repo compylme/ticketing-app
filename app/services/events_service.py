@@ -1,5 +1,5 @@
 from app.models import Event, TicketType, Organiser
-from app.schemas.events_types import EventUpdate, TicketTypesResponse
+from app.schemas.events_types import EventUpdate
 
 def create_event(db, organiser_id, name, venue, ticket_types):
     event = Event(
@@ -50,5 +50,5 @@ def create_organisation(db, name, email):
     return organiser
 
 def get_event_ticket_types(db, event_id):
-    event = db.get(Event, event_id)
-    return TicketTypesResponse(ticket_types=event.ticket_types)
+    ticket_types = db.query(TicketType).filter(TicketType.event_id == event_id).all()
+    return ticket_types
