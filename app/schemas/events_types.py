@@ -16,6 +16,20 @@ class TicketTypeResponse(BaseModel):
    
     model_config = {"from_attributes": True}
 
+class TicketCreate(BaseModel):
+    ticket_user_id: UUID
+    ticket_type: str
+    amount_of_tickets: int
+    event_id: UUID
+
+class TicketCreateResponse(BaseModel):
+    ticket_user_id: UUID
+    ticket_type_id: UUID
+    event_id: UUID
+    
+    model_config = {"from_attributes": True}
+
+
 class EventCreate(BaseModel):
     organiser_id: UUID
     name: str
