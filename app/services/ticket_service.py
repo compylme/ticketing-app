@@ -15,6 +15,10 @@ def reserve_ticket(db, user_id:UUID, event_id:UUID, ticket_type:str, ticket_quan
 
     remaining_tickets_of_ticket_type = ticket_type_obj.quantity_total - ticket_type_obj.quantity_sold
 
+    if ticket_quantity > ticket_type_obj.max_per_order:
+        db.rollback()
+        raise ValueError("Amount of tickets requested exceed max tickets per order")
+
     if ticket_quantity > remaining_tickets_of_ticket_type:
         db.rollback()
         raise ValueError("Not enough tickets")
