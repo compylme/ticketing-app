@@ -4,12 +4,21 @@ from sqlalchemy import(
     String,
     DateTime,
     Integer,
+    Float,
     ForeignKey,
-    Numeric
+    Numeric,
+    Enum
 )
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
+import enum
+
+class OrderStatus(str, enum.Enum):
+    PENDING = "pending"
+    PAID = "paid"
+    FAILED = "failed"
+    EXPIRED = "expired"
 
 Base = declarative_base()
 
@@ -60,10 +69,12 @@ class Ticket(Base):
     ticket_status = Column(String, nullable=False, default="available")
     ticket_type_id = Column(UUID(as_uuid=True), ForeignKey("ticket_types.id"), nullable=False)
     event_id = Column(UUID(as_uuid=True), ForeignKey("events.id"), nullable=False)
+    order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id"), nullable=True)
     
     ticket_type = relationship("TicketType", back_populates="tickets")
-    event = relationship("Event", back_populates="tickets")
+    event = relationship("Event", back_populates="tickets") 
     user = relationship("User", back_populates="tickets")
+    order = relationship("Order", back_populates="tickets")
 
 
 class User(Base):
@@ -74,3 +85,19 @@ class User(Base):
     email = Column(String, nullable=False, unique=True)
 
     tickets = relationship("Ticket", back_populates="user")
+    orders = relationship("Orders", back_populates="user")
+
+class Order(Base):
+    __tablename__="orders"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    payment_session_id = Column(String, nullable=True)
+    amount = Column(Numeric(10,2))
+    status = Column(Enum(OrderStatus, name="order_status"), nullable=False, default=OrderStatus.PENDING)
+    reservation_expiry = Column(DateTime, nullable=False)
+
+
+    user = relationship("User", back_populates="orders")
+    ticket = relationship("Tickets", back_populates="order")
+
