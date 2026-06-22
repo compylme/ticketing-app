@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 
@@ -10,11 +10,13 @@ router = APIRouter(prefix="/events", tags=["events"])
 
 @router.post("/create-organiser", response_model=OrganiserResponse)
 def post_organiser(payload: OrganiserCreate, db: Session = Depends(get_db)):
-    return create_organisation(
+    try: return create_organisation(
         db=db,
         name=payload.name,
         email=payload.email,
     )
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e)) 
 
 @router.patch("/{event_id}", response_model=EventResponse)
 def patch_event(
@@ -32,10 +34,14 @@ def patch_event(
 def fetch_event(
     event_id:UUID,
     db: Session = Depends(get_db)
-): return get_event(
-    db=db,
-    event_id=event_id
-)
+): 
+    try:
+        return get_event(
+        db=db,
+        event_id=event_id
+    )
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e)) 
 
 @router.get("/{event_id}/ticket-types", response_model=TicketTypesResponse)
 def fetch_ticket_types(
@@ -52,10 +58,12 @@ def fetch_events(db: Session=Depends(get_db)):
 
 @router.post("/", response_model=EventResponse)
 def post_event(payload: EventCreate, db: Session = Depends(get_db)):
-    return create_event(
+    try: return create_event(
         db=db,
         organiser_id=payload.organiser_id,
         name=payload.name,
         venue=payload.venue,
         ticket_types=payload.ticket_types,
     )
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e)) 
