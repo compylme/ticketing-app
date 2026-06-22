@@ -40,6 +40,7 @@ class Event(Base):
     name = Column(String, nullable=False)
     venue = Column(String, nullable=False)
     status = Column(String, nullable=False, default="draft")
+    reservation_expiry_minutes = Column(Integer, nullable=False, default=15)
 
     organiser = relationship("Organiser", back_populates="events")
     ticket_types = relationship("TicketType", back_populates="event")
@@ -55,7 +56,7 @@ class TicketType(Base):
     price = Column(Numeric(10,2), nullable=False)
     quantity_total = Column(Integer, nullable=False)
     quantity_sold = Column(Integer, nullable=False, default=0)
-    max_per_order = Column(Integer, nullable=False)
+    max_per_order = Column(Integer, nullable=False, default=4)
 
     event = relationship("Event", back_populates="ticket_types")
     tickets = relationship("Ticket", back_populates="ticket_type")
@@ -85,7 +86,7 @@ class User(Base):
     email = Column(String, nullable=False, unique=True)
 
     tickets = relationship("Ticket", back_populates="user")
-    orders = relationship("Orders", back_populates="user")
+    orders = relationship("Order", back_populates="user")
 
 class Order(Base):
     __tablename__="orders"
@@ -94,10 +95,10 @@ class Order(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     payment_session_id = Column(String, nullable=True)
     amount = Column(Numeric(10,2))
-    status = Column(Enum(OrderStatus, name="order_status"), nullable=False, default=OrderStatus.PENDING)
+    status = Column(Enum(OrderStatus, name="order_status", values_callable=lambda x: [e.value for e in x]), nullable=False, default=OrderStatus.PENDING)
     reservation_expiry = Column(DateTime, nullable=False)
 
 
     user = relationship("User", back_populates="orders")
-    ticket = relationship("Tickets", back_populates="order")
+    tickets = relationship("Ticket", back_populates="order")
 
