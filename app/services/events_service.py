@@ -2,11 +2,32 @@ from app.models import Event, TicketType, Organiser
 from app.schemas.events_types import EventUpdate
 
 def create_event(db, organiser_id, name, venue, ticket_types):
+    event_exists = db.query(Event).filter(Event.name == name).first()
+
+    if event_exists:
+        raise ValueError("An event of the same name already exists")
+
     event = Event(
         name=name, 
         venue=venue,
         organiser_id=organiser_id
     )
+
+    seen = set()
+    for tt in ticket_types:
+        if tt.name in seen:
+            raise ValueError(f"Ticket type '{tt.name}' already exists in this event")
+
+    for tt in ticket_types:
+        tt_exists = (
+            db.query(TicketType)
+            .join(Event)
+            .filter(TicketType.name == tt.name)
+            .first()
+        )
+        if tt_exists:
+            raise ValueError(f"Ticket type '{tt.name}' already exists on another event")
+
     for tt in ticket_types:
         event.ticket_types.append(
             TicketType(
